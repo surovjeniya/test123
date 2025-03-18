@@ -6,7 +6,10 @@
     "build": "tsc",
     "dev": "nodemon",
     "start": "node ./build/index.js",
-    "run-migrations": "ts-node src/migrations/run.migrations.ts"
+    "migration:generate": "npx sequelize-cli migration:generate --name",
+    "migration:up": "npx sequelize-cli db:migrate",
+    "migration:down": "npx sequelize-cli db:migrate:undo",
+    "migration:reset": "npx sequelize-cli db:migrate:undo:all"
   },
   "keywords": [],
   "author": "",

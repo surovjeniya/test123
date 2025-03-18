@@ -1,0 +1,49 @@
+version: "3.8"
+
+networks:
+  infra:
+    name: "infra"
+    driver: "bridge"
+
+volumes:
+  database:
+    name: "database"
+    driver: "local"
+
+services:
+  node-app:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: node-app
+    networks:
+      - infra
+    restart: unless-stopped
+    ports:
+      - 81:81
+    depends_on:
+      - postgres-app
+    environment:
+      PORT: 81
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: dbv4
+      DB_HOST: postgres-app
+      DB_PORT: 5432
+      DB_SCHEMA: public
+    command: sh -c "npm run migration:up && npm start"
+
+  postgres-app:
+    image: postgres
+    ports:
+      - 5432:5432
+    networks:
+      - infra
+    restart: unless-stopped
+    container_name: postgres-app
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: dbv4
+    volumes:
+      - database:/var/lib/postgresql/data

@@ -34,27 +34,33 @@ export class UserService {
   }
 
   async increaseBalance(amount: number, userId: number) {
-    const user = await this._handleUserNotFound(userId);
-    const newBalance = Number(user.balance) + amount;
+    const mutex = this._getMutex(userId);
+    const release = await mutex.acquire();
+    try {
+      const user = await this._handleUserNotFound(userId);
 
-    const result = await this._userEntity.update(
-      { balance: newBalance },
-      {
-        where: {
-          userId,
-          balance: user.balance, // Обновляем только ту запись, где баланс ещё не изменился на момент запроса
+      const newBalance = user.balance + amount;
+
+      await this._userEntity.update(
+        {
+          balance: newBalance,
         },
-      }
-    );
-    if (result[0] === 0)
-      throw new HttpException(
-        "Balance was modified by another request, please try again",
-        HTTP_STATUS_CODES.CONFLICT
+        {
+          where: {
+            userId,
+          },
+        }
       );
-    return {
-      message: "Balance increased",
-      newBalance,
-    };
+
+      return {
+        message: "OK",
+        data: { newBalance },
+      };
+    } catch (error) {
+      throw error;
+    } finally {
+      release();
+    }
   }
 
   async reduceBalance(amount: number, userId: number) {
