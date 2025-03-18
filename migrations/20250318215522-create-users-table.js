@@ -10,8 +10,9 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       balance: {
-        type: Sequelize.INTEGER,
-        defaultValue: 0,
+        type: Sequelize.DECIMAL(15, 2),
+        allowNull: false,
+        defaultValue: 0.0,
         validate: {
           isPositive(value) {
             if (value <= 0) {

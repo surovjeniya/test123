@@ -39,7 +39,7 @@ export class UserService {
     try {
       const user = await this._handleUserNotFound(userId);
 
-      const newBalance = user.balance + amount;
+      const newBalance = Number(user.balance) + amount;
 
       await this._userEntity.update(
         {
@@ -69,7 +69,7 @@ export class UserService {
     try {
       const user = await this._handleUserNotFound(userId);
 
-      const newBalance = user.balance - amount;
+      const newBalance = Number(user.balance) - amount;
 
       await this._userEntity.update(
         {
